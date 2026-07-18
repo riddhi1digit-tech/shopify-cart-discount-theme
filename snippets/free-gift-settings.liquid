@@ -1,0 +1,43 @@
+{%- comment -%}
+  Reward thresholds are product prices so Shopify Markets performs the conversion.
+  Create three hidden, non-gift-card reference products priced at 999, 1499 and
+  1999 in the shop currency, then select them in Theme settings > Free Gift System.
+  Fixed market prices and automatic conversion are both reflected by product.price.
+{%- endcomment -%}
+{%- liquid
+  assign reward_enabled = settings.free_gift_enabled
+  assign currency_code = cart.currency.iso_code | default: localization.country.currency.iso_code | default: shop.currency
+
+  assign tier1_threshold = settings.reward_threshold_tier1.price
+  assign tier2_threshold = settings.reward_threshold_tier2.price
+  assign tier3_threshold = settings.reward_threshold_tier3.price
+
+  # Backward-compatible shop-currency fallback until all three products are selected.
+  if tier1_threshold == blank
+    assign tier1_threshold = settings.tier1_threshold_usd | default: 999 | times: 100
+  endif
+  if tier2_threshold == blank
+    assign tier2_threshold = settings.tier2_threshold_usd | default: 1499 | times: 100
+  endif
+  if tier3_threshold == blank
+    assign tier3_threshold = settings.tier3_threshold_usd | default: 1999 | times: 100
+  endif
+
+  assign gift_variant_tier1 = settings.gift_variant_tier1 | default: '42928271982663'
+  assign gift_variant_tier2 = settings.gift_variant_tier2 | default: '42928272015431'
+  assign gift_variant_tier3 = settings.gift_variant_tier3 | default: '42928272048199'
+-%}
+
+<script>
+  window.rewardSettings = {
+    enabled: {{ reward_enabled | json }},
+    currency: {{ currency_code | json }},
+    locale: {{ request.locale.iso_code | json }},
+    market: {{ localization.country.iso_code | json }},
+    tiers: {
+      tier1: { threshold_cents: {{ tier1_threshold | json }}, variant_id: {{ gift_variant_tier1 | json }}, label: '0.50 CT Diamond Gift' },
+      tier2: { threshold_cents: {{ tier2_threshold | json }}, variant_id: {{ gift_variant_tier2 | json }}, label: '0.75 CT Diamond Gift' },
+      tier3: { threshold_cents: {{ tier3_threshold | json }}, variant_id: {{ gift_variant_tier3 | json }}, label: '1 CT Diamond Gift' }
+    }
+  };
+</script>

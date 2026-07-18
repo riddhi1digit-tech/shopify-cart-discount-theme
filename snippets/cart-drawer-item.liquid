@@ -1,0 +1,321 @@
+
+{%- liquid
+  assign is_gift = false
+  assign gift_variant_tier1 = settings.gift_variant_tier1 | default: '42928271982663'
+  assign gift_variant_tier2 = settings.gift_variant_tier2 | default: '42928272015431'
+  assign gift_variant_tier3 = settings.gift_variant_tier3 | default: '42928272048199'
+  assign item_variant_id = item.variant.id | append: ''
+  if item.properties._gift == 'true' or item.properties._gift_tier != blank or item_variant_id == gift_variant_tier1 or item_variant_id == gift_variant_tier2 or item_variant_id == gift_variant_tier3
+    assign is_gift = true
+  endif
+-%}
+
+<div class="cart-drawer-item{% if is_gift %} cart-drawer-item--gift{% endif %}" id="CartDrawer-Item-{{ forloop.index }}" data-index="{{ forloop.index }}" data-product-id="{{ item.product.id }}">
+  <div class="cart-drawer-item__image">
+    {%- if item.image -%}
+      <img src="{{ item.image | image_url: width: 100 }}" alt="{{ item.image.alt | escape }}" loading="lazy" width="80" height="80">
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
+
+  <div class="cart-drawer-item__details">
+    <div class="cart-drawer-item__info">
+      <a href="{{ item.url }}" class="cart-drawer-item__title">{{ item.product.title | escape }}</a>
+      {%- if is_gift -%}
+  <!-- Gift item - show minimal info without price -->
+  <div class="cart-item cart-item--gift" data-gift="true">
+    <div class="cart-item__media">
+      <!-- Your gift image here -->
+    </div>
+    <div class="cart-item__details">
+      <div class="cart-item__title">
+        <span>🎁 Free Gift</span>
+        <span class="gift-mandatory-label">🔒 Mandatory Gift</span>
+      </div>
+      <!-- Remove price display for gift items -->
+      {% comment %} 
+      <div class="cart-item__price-wrapper">
+        <!-- Price hidden for gift items -->
+      </div>
+      {% endcomment %}
+    </div>
+  </div>
+{%- else -%}
+  <!-- Regular cart item with full details including price -->
+  <div class="cart-item">
+    <!-- Your regular cart item template -->
+   {%- unless is_gift -%}
+  <div class="cart-item__price-wrapper">
+    {%- if item.original_price != item.final_price -%}
+      <span class="cart-item__compare-at-price">
+        {{ item.original_price | money }}
+      </span>
+    {%- endif -%}
+    <span class="cart-item__price">
+      {{ item.final_price | money }}
+    </span>
+  </div>
+{%- else -%}
+  <div class="cart-item__price-wrapper gift-free">
+    <span class="cart-item__price" style="color: #28a745; font-weight: 600;">FREE</span>
+  </div>
+{%- endunless -%}
+  </div>
+{%- endif -%}
+      
+      <!-- ===== DISPLAY CUSTOM PROPERTIES ===== -->
+      {%- if item.properties.size > 0 -%}
+        <div class="cart-item__custom-properties">
+          {%- for property in item.properties -%}
+            {%- assign property_first_char = property.first | slice: 0 -%}
+            {%- if property.last != blank and property_first_char != '_' -%}
+              <div class="property-row">
+                <span class="property-label">{{ property.first }}:</span>
+                <span class="property-value">{{ property.last }}</span>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      
+      {%- if item.product.has_only_default_variant == false or item.properties.size > 0 or item.selling_plan_allocation -%}
+        <div class="cart-drawer-item__variant">
+          {%- if item.variant.title != 'Default Title' -%}
+            <span>{{ item.variant.title | escape }}</span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="cart-drawer-item__price">
+      {%- if is_gift -%}
+        <span style="color: #28a745; font-weight: 700;">FREE</span>
+      {%- elsif item.original_price != item.final_price -%}
+        <span class="cart-drawer-item__price--original">{{ item.original_price | money }}</span>
+        <span class="cart-drawer-item__price--sale">{{ item.final_price | money }}</span>
+      {%- else -%}
+        <span>{{ item.final_price | money }}</span>
+      {%- endif -%}
+    </div>
+
+    <div class="cart-drawer-item__actions">
+      <div class="cart-drawer-item__quantity">
+        {%- if is_gift -%}
+          <span class="cart-drawer-item__quantity-fixed">Qty: 1</span>
+          <input type="hidden" id="Drawer-quantity-{{ forloop.index }}" 
+                 value="1" 
+                 data-index="{{ forloop.index }}"
+                 data-is-gift="true"
+                 data-quantity-variant-id="{{ item.variant.id }}"
+                 data-quantity-line-key="{{ item.key }}">
+        {%- else -%}
+          <quantity-input class="quantity">
+            <button class="quantity__button" name="minus" type="button">
+              <span class="visually-hidden">{{ 'products.product.quantity.decrease' | t }}</span>
+              {% render 'icon-minus' %}
+            </button>
+            <input class="quantity__input" 
+                   type="number" 
+                   id="Drawer-quantity-{{ forloop.index }}"
+                   name="updates[]" 
+                   value="{{ item.quantity }}" 
+                   min="0" 
+                   aria-label="{{ 'products.product.quantity.label' | t }}"
+                   data-index="{{ forloop.index }}"
+                   data-is-gift="false"
+                   data-quantity-variant-id="{{ item.variant.id }}"
+                   data-quantity-line-key="{{ item.key }}"
+                   form="CartDrawer-Form">
+            <button class="quantity__button" name="plus" type="button">
+              <span class="visually-hidden">{{ 'products.product.quantity.increase' | t }}</span>
+              {% render 'icon-plus' %}
+            </button>
+          </quantity-input>
+        {%- endif -%}
+      </div>
+
+      <div class="cart-drawer-item__remove">
+        <cart-remove-button data-index="{{ forloop.index }}" data-quantity-line-key="{{ item.key }}">
+          <button type="button" aria-label="{{ 'sections.cart.remove' | t }}">
+            {% render 'icon-remove' %}
+          </button>
+        </cart-remove-button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.cart-drawer-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-bottom: 0.1rem solid rgba(0,0,0,0.08);
+}
+.cart-drawer-item__image {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+}
+.cart-drawer-item__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.4rem;
+}
+.cart-drawer-item__details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.cart-drawer-item__info {
+  flex: 1;
+}
+.cart-drawer-item__title {
+  font-weight: 600;
+  text-decoration: none;
+  color: inherit;
+}
+.cart-drawer-item__variant {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+.cart-drawer-item__gift-badge {
+  display: inline-block;
+  background: #28a745;
+  color: white;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+.cart-drawer-item__price {
+  font-weight: 600;
+}
+.cart-drawer-item__price--original {
+  text-decoration: line-through;
+  color: #6c757d;
+  margin-right: 0.5rem;
+}
+.cart-drawer-item__price--sale {
+  color: #dc3545;
+}
+.cart-drawer-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.cart-drawer-item__quantity {
+  display: flex;
+  align-items: center;
+}
+.cart-drawer-item__quantity-fixed {
+  font-size: 0.9rem;
+  color: #28a745;
+  font-weight: 500;
+}
+.cart-drawer-item__remove button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+.cart-drawer-item__remove button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cart-drawer-item__remove-disabled {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+.cart-drawer-item--gift {
+  background: #f8f9fa;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #28a745;
+  margin: 0.5rem 0;
+}
+.quantity {
+  display: flex;
+  align-items: center;
+  border: 0.1rem solid rgba(0,0,0,0.08);
+  border-radius: 0.4rem;
+}
+.quantity__button {
+  background: none;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+}
+.quantity__input {
+  width: 3.5rem;
+  text-align: center;
+  border: none;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+}
+.quantity__input:focus {
+  outline: none;
+}
+
+/* ===== CUSTOM PROPERTIES ===== */
+.cart-item__custom-properties {
+  margin: 0.3rem 0 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: #f8f9fa;
+  border-radius: 0.4rem;
+  border-left: 3px solid #C9A84C;
+}
+
+.property-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.15rem 0;
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.property-row .property-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.property-row .property-value {
+  color: #555;
+  font-weight: 500;
+}
+
+.cart-drawer-item--gift .cart-item__custom-properties {
+  background: #fdf8f0;
+  border-left-color: #E8D5A3;
+}
+
+.cart-drawer-item--gift .property-row .property-label {
+  color: #C9A84C;
+}
+
+@media (max-width: 480px) {
+  .cart-item__custom-properties {
+    padding: 0.3rem 0.4rem;
+  }
+  
+  .property-row {
+    font-size: 0.65rem;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
+  
+  .property-row .property-label {
+    font-size: 0.6rem;
+    min-width: 60px;
+  }
+}
+</style>

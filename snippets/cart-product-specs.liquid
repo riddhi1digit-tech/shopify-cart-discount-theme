@@ -1,0 +1,94 @@
+{% comment %} <!-- ===========================
+     Metal Type
+=========================== -->
+
+{% if product.metafields.custom.metal_type != blank %}
+<div class="variant-group">
+
+  <label>Metal Type</label>
+
+  <div class="metal-options">
+
+    {% for image in product.metafields.custom.metal_type.value %}
+
+      <div class="metal-image" data-value="{{ image.alt }}">
+
+        <img
+          src="{{ image | image_url: width: 80 }}"
+          alt="{{ image.alt }}">
+
+        <span>{{ image.alt }}</span>
+
+      </div>
+
+    {% endfor %}
+
+  </div>
+
+  <input
+    type="hidden"
+    name="properties[Metal Type]"
+    id="selected-metal-type">
+
+</div>
+{% endif %}
+
+
+<!-- ===========================
+     Diamond Type
+=========================== -->
+
+{% if product.metafields.custom.diamond_color != blank %}
+<div class="variant-group">
+
+<label>Diamond Type</label>
+
+<div class="diamond-options">
+
+{% for item in product.metafields.custom.diamond_color.value %}
+
+<div class="diamond-box" data-value="{{ item }}">
+{{ item }}
+</div>
+
+{% endfor %}
+
+</div>
+
+<input
+type="hidden"
+name="properties[Diamond Type]"
+id="selected-diamond-type">
+
+</div>
+{% endif %}
+
+
+<!-- ===========================
+     Diamond Clarity
+=========================== -->
+
+{% if product.metafields.custom.diamond_clarity != blank %}
+<div class="variant-group">
+
+<label>Diamond Clarity</label>
+
+<div class="clarity-options">
+
+{% for item in product.metafields.custom.diamond_clarity.value %}
+
+<div class="clarity-box" data-value="{{ item }}">
+{{ item }}
+</div>
+
+{% endfor %}
+
+</div>
+
+<input
+type="hidden"
+name="properties[Diamond Clarity]"
+id="selected-diamond-clarity">
+
+</div>
+{% endif %} {% endcomment %}

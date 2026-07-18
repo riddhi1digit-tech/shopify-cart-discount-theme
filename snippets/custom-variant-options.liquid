@@ -1,0 +1,174 @@
+
+
+<div class="custom-variant-options" data-custom-variant-options>
+
+  {%- comment -%} Metal Type {%- endcomment -%}
+  {% if product.metafields.custom.metal_type != blank %}
+    <div class="custom-option-group" data-option-group="Metal Type">
+      <label class="custom-option-group__label">Metal Type</label>
+
+      <div class="metal-options">
+        {% for image in product.metafields.custom.metal_type.value %}
+          <button
+            type="button"
+            class="metal-image{% if forloop.first %} is-selected{% endif %}"
+            data-value="{{ image.alt }}"
+          >
+            <img
+              src="{{ image | image_url: width: 100 }}"
+              alt="{{ image.alt }}"
+              loading="lazy"
+              width="50"
+              height="50"
+            >
+            <span class="metal-image__label">{{ image.alt }}</span>
+          </button>
+        {% endfor %}
+      </div>
+
+      <input
+        type="hidden"
+        name="properties[Metal Type]"
+        class="custom-option-input"
+        data-option-input="Metal Type"
+        value=""
+      >
+    </div>
+  {% endif %}
+
+  {%- comment -%} Diamond Type {%- endcomment -%}
+  {% if product.metafields.custom.diamond_color != blank %}
+    <div class="custom-option-group" data-option-group="Diamond Type">
+      <label class="custom-option-group__label">Diamond Type</label>
+
+      <div class="diamond-options">
+        {% for item in product.metafields.custom.diamond_color.value %}
+          <button
+            type="button"
+            class="diamond-box{% if forloop.first %} is-selected{% endif %}"
+            data-value="{{ item }}"
+          >
+            {{ item }}
+          </button>
+        {% endfor %}
+      </div>
+
+      <input
+        type="hidden"
+        name="properties[Diamond Type]"
+        class="custom-option-input"
+        data-option-input="Diamond Type"
+        value=""
+      >
+    </div>
+  {% endif %}
+
+  {%- comment -%} Diamond Clarity {%- endcomment -%}
+  {% if product.metafields.custom.diamond_clarity != blank %}
+    <div class="custom-option-group" data-option-group="Diamond Clarity">
+      <label class="custom-option-group__label">Diamond Clarity</label>
+
+      <div class="clarity-options">
+        {% for item in product.metafields.custom.diamond_clarity.value %}
+          <button
+            type="button"
+            class="clarity-box{% if forloop.first %} is-selected{% endif %}"
+            data-value="{{ item }}"
+          >
+            {{ item }}
+          </button>
+        {% endfor %}
+      </div>
+
+      <input
+        type="hidden"
+        name="properties[Diamond Clarity]"
+        class="custom-option-input"
+        data-option-input="Diamond Clarity"
+        value=""
+      >
+    </div>
+  {% endif %}
+
+</div>
+<script>
+ // ===== CUSTOM PROPERTIES - POPULATE ON SELECTION =====
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // Function to get selected value from custom options
+  function getSelectedMetalType() {
+    const selected = document.querySelector('.metal-options .metal-image.is-selected');
+    return selected ? selected.dataset.value : '';
+  }
+
+  function getSelectedDiamondType() {
+    const selected = document.querySelector('.diamond-options .diamond-box.is-selected');
+    return selected ? selected.dataset.value : '';
+  }
+
+  function getSelectedDiamondClarity() {
+    const selected = document.querySelector('.clarity-options .clarity-box.is-selected');
+    return selected ? selected.dataset.value : '';
+  }
+
+  function getSelectedBackType() {
+    const selected = document.querySelector('.back-options .back-box.is-selected');
+    return selected ? selected.dataset.value : '';
+  }
+
+  function getSelectedCertification() {
+    const selected = document.querySelector('.certification-options .certification-box.is-selected');
+    return selected ? selected.dataset.value : '';
+  }
+
+  // Update hidden inputs
+  function setPropertyValue(propertyName, value) {
+    document
+      .querySelectorAll(`[name="properties[${propertyName}]"], [data-option-input="${propertyName}"]`)
+      .forEach(input => {
+        input.value = value || '';
+      });
+  }
+
+  function updatePropertyInputs() {
+    const metalValue = getSelectedMetalType();
+    const diamondValue = getSelectedDiamondType();
+    const clarityValue = getSelectedDiamondClarity();
+    const backValue = getSelectedBackType();
+    const certificationValue = getSelectedCertification();
+
+    setPropertyValue('Metal Type', metalValue);
+    setPropertyValue('Diamond Type', diamondValue);
+    setPropertyValue('Diamond Clarity', clarityValue);
+    setPropertyValue('Back Type', backValue);
+    setPropertyValue('Certification', certificationValue);
+
+    // Debug log
+    console.log('Properties updated:', {
+      'Metal Type': metalValue,
+      'Diamond Type': diamondValue,
+      'Diamond Clarity': clarityValue,
+      'Back Type': backValue,
+      'Certification': certificationValue
+    });
+  }
+
+  // Listen for clicks on custom option buttons
+  document.querySelectorAll('.metal-options .metal-image, .diamond-options .diamond-box, .clarity-options .clarity-box, .back-options .back-box, .certification-options .certification-box').forEach(button => {
+    button.addEventListener('click', function() {
+      // Small delay to allow the class to be added
+      setTimeout(updatePropertyInputs, 50);
+    });
+  });
+
+  // Also update on variant change (for dropdowns)
+  document.querySelectorAll('select[name^="options["]').forEach(select => {
+    select.addEventListener('change', function() {
+      setTimeout(updatePropertyInputs, 100);
+    });
+  });
+
+  // Initial update
+  setTimeout(updatePropertyInputs, 500);
+});
+</script>

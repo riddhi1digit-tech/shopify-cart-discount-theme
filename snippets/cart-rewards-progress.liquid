@@ -1,0 +1,611 @@
+<style>
+  .drawer {
+    visibility: hidden;
+  }
+
+  .cart-drawer__rewards {
+    padding: 1rem 2rem 0.75rem;
+ 
+    background: #ffffff;
+  }
+  
+  .rewards-progress {
+    margin: 0;
+  }
+  
+  /* Progress Container */
+  .progress-container {
+    position: relative;
+    margin: 1rem 0 0.5rem;
+    padding: 0.5rem 0;
+  }
+  
+  .top-message h3 {
+    margin: 10px 0;
+  }
+  
+  .progress-bar-wrapper {
+    position: relative;
+    padding: 0;
+  }
+  
+  .top-message {
+    text-align: center;
+  }
+  
+  span.dot-price {
+    font-size: 12px;
+    margin-top: 6px;
+    display: block;
+  }
+  
+  /* Progress Bar */
+  .progress-bar {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background: #e5e5e5;
+    border-radius: 999px;
+    overflow: visible;
+    margin: 30px 0 50px;
+  }
+
+  .progress-bar__fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #C9A84C, #F4D66A);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.6s ease;
+  }
+.progress-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    left: var(--tier-position);
+    transform: translate(31%, -50%);
+}
+  /* Progress Bar Complete State */
+  .progress-bar__fill.complete {
+    background: linear-gradient(90deg, #C9A84C, #FFD700);
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+  }
+
+  /* Progress Dots Container - Evenly spaced */
+ .progress-dots{
+    position:relative;
+    width:100%;
+    margin-top:-72px;
+    height:40px;
+}
+
+.progress-dot{
+    position:absolute;
+    top:12%;
+    transform:translate(-50%,-50%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.dot-1{
+    left:19%;
+    transform:translate(-50%,-50%);
+}
+
+.dot-2{
+    left:50%;
+    transform:translate(-50%,-50%);
+}
+
+.dot-3{
+    left:83.33%;
+    transform:translate(-50%,-50%);
+}
+
+  /* First dot - left aligned */
+  {% comment %} .progress-dot:first-child {
+    align-items: flex-start;
+  }  {% endcomment %}
+
+  /* Last dot - right aligned */
+  {% comment %} .progress-dot:last-child {
+    align-items: flex-end;
+  }  {% endcomment %}
+
+  /* Middle dot - center aligned */
+  .progress-dot:nth-child(2) {
+    align-items: center;
+  }
+
+  .dot-inner {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #F0F0F0;
+    border: 3px solid #D0D0D0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    z-index: 3;
+  }
+
+  .diamond-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    transition: all 0.5s ease;
+  }
+
+  /* Active Dot State */
+  .progress-dot.active .dot-inner {
+    background: #C9A84C;
+    border-color: #C9A84C;
+    box-shadow: 0 0 0 6px rgba(201, 168, 76, 0.2);
+    transform: scale(1.1);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  .progress-dot.active .dot-price,
+  .progress-dot.active .dot-label {
+    color: #C9A84C;
+    font-weight: 700;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% {
+      box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.2);
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.08);
+    }
+  }
+
+  .dot-price {
+    font-size: 11px;
+    font-weight: 600;
+    color: #999;
+    transition: color 0.3s ease;
+    text-align: center;
+    margin-top: 6px;
+    white-space: nowrap;
+  }
+
+  .dot-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #999;
+    transition: color 0.3s ease;
+    text-align: center;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+
+  /* First dot label alignment */
+  .progress-dot:first-child .dot-price,
+  .progress-dot:first-child .dot-label {
+    text-align: left;
+  }
+
+  /* Last dot label alignment */
+  .progress-dot:last-child .dot-price,
+  .progress-dot:last-child .dot-label {
+    text-align: right;
+  }
+
+  /* Connection Lines - Behind dots */
+  .progress-connections {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    right: 16px;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    z-index: 0;
+    height: 3px;
+  }
+
+  .connection-line {
+    flex: 1;
+    height: 3px;
+    background: #e5e5e5;
+    transition: background 0.6s ease;
+    margin: 0 2px;
+    border-radius: 2px;
+  }
+
+  .connection-line.active {
+    background: linear-gradient(90deg, #C9A84C, #F4D66A);
+  }
+
+  /* Rewards Messages */
+  .rewards-top-messages {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .reward-title {
+    font-size: 15px;
+    color: #333;
+    margin: 0;
+  }
+
+  .remaining-amount {
+    color: #c9a84c;
+    font-weight: 700;
+  }
+
+  .reward-sub {
+    font-size: 14px;
+    color: #666;
+    margin: 4px 0 0 0;
+    font-weight: 600;
+  }
+
+  .reward-subtitle {
+    font-size: 15px;
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+
+  .reward-subtitle strong {
+    color: #c9a84c;
+    font-weight: 700;
+  }
+
+  .reward-next {
+    font-size: 14px;
+    color: #666;
+    margin: 8px 0 4px 0;
+  }
+
+  .reward-highlight {
+    font-size: 16px;
+    font-weight: 700;
+    color: #c9a84c;
+    margin: 4px 0 0 0;
+  }
+
+  .reward-items {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 6px;
+  }
+
+  .reward-item {
+    font-size: 14px;
+    font-weight: 600;
+    color: #28a745;
+  }
+
+  .payments-option {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin: 0.5rem 0;
+  }
+
+  .payments-option img {
+    max-height: 33px;
+    width: auto;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .dot-inner {
+      width: 28px;
+      height: 28px;
+    }
+    
+    .diamond-icon {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .dot-price {
+      font-size: 10px;
+    }
+    
+    .dot-label {
+      font-size: 9px;
+    }
+    
+    .top-message h3 {
+      font-size: 17px;
+    }
+    
+    .progress-bar {
+      margin: 25px 0 45px;
+    }
+    
+    .progress-connections {
+      left: 14px;
+      right: 14px;
+    }
+  }
+</style>
+
+{%- liquid
+  assign currency_code = cart.currency.iso_code | default: shop.currency
+
+  comment
+    Legacy per-currency thresholds retained only so older customized settings can
+    be migrated safely. They are not executed; Markets product prices below win.
+  endcomment
+  case currency_code
+    when 'INR'
+      assign tier1 = settings.tier1_threshold_inr | default: 82999
+      assign tier2 = settings.tier2_threshold_inr | default: 124999
+      assign tier3 = settings.tier3_threshold_inr | default: 165999
+      assign currency_symbol = '₹'
+    when 'EUR'
+      assign tier1 = settings.tier1_threshold_eur | default: 899
+      assign tier2 = settings.tier2_threshold_eur | default: 1349
+      assign tier3 = settings.tier3_threshold_eur | default: 1799
+      assign currency_symbol = '€'
+    when 'GBP'
+      assign tier1 = settings.tier1_threshold_gbp | default: 799
+      assign tier2 = settings.tier2_threshold_gbp | default: 1199
+      assign tier3 = settings.tier3_threshold_gbp | default: 1599
+      assign currency_symbol = '£'
+    when 'CAD'
+      assign tier1 = settings.tier1_threshold_cad | default: 1349
+      assign tier2 = settings.tier2_threshold_cad | default: 2029
+      assign tier3 = settings.tier3_threshold_cad | default: 2699
+      assign currency_symbol = 'CA$'
+    when 'AUD'
+      assign tier1 = settings.tier1_threshold_aud | default: 1499
+      assign tier2 = settings.tier2_threshold_aud | default: 2249
+      assign tier3 = settings.tier3_threshold_aud | default: 2999
+      assign currency_symbol = 'AU$'
+    when 'AED'
+      assign tier1 = settings.tier1_threshold_aed | default: 3669
+      assign tier2 = settings.tier2_threshold_aed | default: 5509
+      assign tier3 = settings.tier3_threshold_aed | default: 7339
+      assign currency_symbol = 'AED '
+    else
+      assign tier1 = settings.tier1_threshold_usd | default: 999
+      assign tier2 = settings.tier2_threshold_usd | default: 1499
+      assign tier3 = settings.tier3_threshold_usd | default: 1999
+      assign currency_symbol = '$'
+  endcase
+
+  # Shopify Markets presentment prices are the authoritative thresholds.
+  assign tier1 = settings.reward_threshold_tier1.price
+  assign tier2 = settings.reward_threshold_tier2.price
+  assign tier3 = settings.reward_threshold_tier3.price
+  if tier1 == blank
+    assign tier1 = settings.tier1_threshold_usd | default: 999 | times: 100
+  endif
+  if tier2 == blank
+    assign tier2 = settings.tier2_threshold_usd | default: 1499 | times: 100
+  endif
+  if tier3 == blank
+    assign tier3 = settings.tier3_threshold_usd | default: 1999 | times: 100
+  endif
+
+  assign cart_total_cents = 0
+  assign gift_variant_tier1 = settings.gift_variant_tier1 | default: '42928271982663'
+  assign gift_variant_tier2 = settings.gift_variant_tier2 | default: '42928272015431'
+  assign gift_variant_tier3 = settings.gift_variant_tier3 | default: '42928272048199'
+
+  assign gift_in_cart = false
+  assign gift_tier_in_cart = 0
+
+  for item in cart.items
+    assign item_variant_id = item.variant.id | append: ''
+    if item.properties._gift == 'true' or item.properties._gift_tier != blank or item_variant_id == gift_variant_tier1 or item_variant_id == gift_variant_tier2 or item_variant_id == gift_variant_tier3
+      assign gift_in_cart = true
+      if item_variant_id == gift_variant_tier1
+        assign gift_tier_in_cart = 1
+      elsif item_variant_id == gift_variant_tier2
+        assign gift_tier_in_cart = 2
+      elsif item_variant_id == gift_variant_tier3
+        assign gift_tier_in_cart = 3
+      endif
+    else
+      assign cart_total_cents = cart_total_cents | plus: item.final_line_price
+    endif
+  endfor
+
+  assign cart_total = cart_total_cents
+  assign current_tier = 0
+
+  if cart_total >= tier3
+    assign current_tier = 3
+  elsif cart_total >= tier2
+    assign current_tier = 2
+  elsif cart_total >= tier1
+    assign current_tier = 1
+  endif
+
+  # Continuous progress mapped to the actual icon positions (19%, 50%, 83.33%).
+  # This prevents the fill from touching an icon before its threshold is reached.
+ assign progress_percentage = 0
+
+if cart_total < tier1
+  assign progress_percentage = cart_total | times: 19.0 | divided_by: tier1
+
+elsif cart_total < tier2
+  assign tier_progress = cart_total | minus: tier1
+  assign tier_range = tier2 | minus: tier1
+  assign progress_percentage = tier_progress | times: 20.0 | divided_by: tier_range
+  assign progress_percentage = progress_percentage | plus: 15
+
+elsif cart_total < tier3
+  assign tier_progress = cart_total | minus: tier2
+  assign tier_range = tier3 | minus: tier2
+  assign progress_percentage = tier_progress | times: 35.0 | divided_by: tier_range
+  assign progress_percentage = progress_percentage | plus: 40
+
+else
+  assign progress_percentage = 100
+endif
+
+  assign remaining_tier1 = tier1 | minus: cart_total
+  if remaining_tier1 < 0
+    assign remaining_tier1 = 0
+  endif
+
+  assign remaining_tier2 = tier2 | minus: cart_total
+  if remaining_tier2 < 0
+    assign remaining_tier2 = 0
+  endif
+
+  assign remaining_tier3 = tier3 | minus: cart_total
+  if remaining_tier3 < 0
+    assign remaining_tier3 = 0
+  endif
+-%}
+
+<div class="rewards-progress"
+     data-current-tier="{{ current_tier }}"
+     data-gift-in-cart="{{ gift_in_cart }}"
+     data-gift-tier="{{ gift_tier_in_cart }}"
+     data-cart-subtotal="{{ cart_total_cents }}"
+     data-currency="{{ currency_code }}"
+     data-tier-1="{{ tier1 }}"
+     data-tier-2="{{ tier2 }}"
+     data-tier-3="{{ tier3 }}"
+     data-progress="{{ progress_percentage }}">
+
+  <!-- TOP MESSAGES -->
+  <div class="rewards-top-messages">
+    {% if current_tier == 0 %}
+      <div class="top-message">
+        <p class="reward-title">
+          Spend
+          <span class="remaining-amount">
+            {{ remaining_tier1 | money}}
+          </span>
+          more to unlock
+        </p>
+        <p class="reward-sub">
+          FREE 0.50 CT Diamond
+        </p>
+      </div>
+    {% elsif current_tier == 1 %}
+      <div class="top-message">
+        <h3>🎉 Congratulations!</h3>
+        <p class="reward-subtitle">
+          You've unlocked a
+          <strong>FREE 0.50 CT Diamond</strong>.
+        </p>
+        <p class="reward-next">
+          Spend
+          <span class="remaining-amount">
+            {{ remaining_tier2 | money }}
+          </span>
+          more to unlock
+        </p>
+        <p class="reward-highlight">
+          FREE 0.75 CT Diamond
+        </p>
+      </div>
+    {% elsif current_tier == 2 %}
+      <div class="top-message">
+        <h3>🎉 Congratulations!</h3>
+        <p class="reward-subtitle">
+          You've unlocked a
+          <strong>FREE 0.75 CT Diamond</strong>.
+        </p>
+        <p class="reward-next">
+          Spend
+          <span class="remaining-amount">
+            {{ remaining_tier3 | money }}
+          </span>
+          more to unlock
+        </p>
+        <p class="reward-highlight">
+          FREE 1 CT Diamond + FREE Shipping
+        </p>
+      </div>
+    {% else %}
+      <div class="top-message">
+        <h3>🎉 Congratulations!</h3>
+        <p class="reward-subtitle">
+          You unlocked
+        </p>
+        <div class="reward-items">
+          <span class="reward-item">✓ FREE 1 CT Diamond</span>
+          <span class="reward-item">✓ FREE Shipping</span>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Progress Bar with Dots - Evenly Spaced -->
+  <div class="progress-container">
+    <div class="progress-bar-wrapper">
+      <!-- The progress bar track -->
+      <div class="progress-bar">
+        <div class="progress-bar__fill {% if current_tier == 3 %}complete{% endif %}"
+             style="width: {{ progress_percentage }}%;">
+        </div>
+      </div>
+
+      <!-- Connection Lines -->
+      <div class="progress-connections">
+        <div class="connection-line connection-1 {% if current_tier >= 1 %}active{% endif %}"></div>
+        <div class="connection-line connection-2 {% if current_tier >= 2 %}active{% endif %}"></div>
+      </div>
+
+      <!-- Three Diamond Dots - Evenly Spaced -->
+      <div class="progress-dots">
+        <!-- Dot 1 - Tier 1 (Left) -->
+        <div class="progress-dot dot-1 {% if current_tier >= 1 %}active{% endif %}">
+          <div class="dot-inner">
+            <img src="https://cdn.shopify.com/s/files/1/0689/2748/8071/files/images.png?v=1783144953"
+                 alt="0.50 CT Diamond"
+                 class="diamond-icon"
+                 width="18"
+                 height="18"
+                 loading="lazy">
+          </div>
+          <span class="dot-label">Free Gift</span>
+        </div>
+
+        <!-- Dot 2 - Tier 2 (Center) -->
+        <div class="progress-dot dot-2 {% if current_tier >= 2 %}active{% endif %}">
+          <div class="dot-inner">
+            <img src="https://cdn.shopify.com/s/files/1/0689/2748/8071/files/images.png?v=1783144953"
+                 alt="0.75 CT Diamond"
+                 class="diamond-icon"
+                 width="18"
+                 height="18"
+                 loading="lazy">
+          </div>
+          <span class="dot-label">Free Gift</span>
+        </div>
+
+        <!-- Dot 3 - Tier 3 (Right) -->
+        <div class="progress-dot dot-3 {% if current_tier >= 3 %}active{% endif %}">
+          <div class="dot-inner">
+            <img src="https://cdn.shopify.com/s/files/1/0689/2748/8071/files/images.png?v=1783144953"
+                 alt="1 CT Diamond"
+                 class="diamond-icon"
+                 width="18"
+                 height="18"
+                 loading="lazy">
+          </div>
+          <span class="dot-label">Free Gift</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

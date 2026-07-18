@@ -1,0 +1,40 @@
+{% comment %} <!-- Add this to a hidden section for testing -->
+<div style="display:none;" id="test-cart-scenarios">
+  <button onclick="testGiftScenario(999)">Test $999 (0.50 CT)</button>
+  <button onclick="testGiftScenario(1499)">Test $1,499 (0.75 CT)</button>
+  <button onclick="testGiftScenario(1999)">Test $1,999 (1 CT + Free Shipping)</button>
+  <button onclick="testGiftScenario(500)">Test $500 (No Gift)</button>
+</div>
+
+<script>
+function testGiftScenario(amount) {
+  fetch('/cart/clear.js', { method: 'POST' })
+    .then(() => {
+      // Add test product to reach amount
+      const body = {
+        items: [
+          {
+            id: 123456789, // Replace with your product variant ID
+            quantity: Math.ceil(amount / 100) // Adjust price accordingly
+          }
+        ]
+      };
+      
+      return fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    })
+    .then(() => fetch('/cart.js'))
+    .then(response => response.json())
+    .then(cartData => {
+      if (window.freeGiftManager) {
+        window.freeGiftManager.handleCartUpdate(cartData);
+        // Reload cart drawer
+        const drawer = document.querySelector('cart-drawer');
+        if (drawer) drawer.load();
+      }
+    });
+}
+</script> {% endcomment %}
