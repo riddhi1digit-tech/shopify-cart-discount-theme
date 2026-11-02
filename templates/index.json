@@ -158,8 +158,8 @@
   },
   "order": [
     "image_banner",
-    "featured_collection",
     "image_with_text_j84V3a",
-    "image_with_text_brVBQH"
+    "image_with_text_brVBQH",
+    "featured_collection"
   ]
 }
