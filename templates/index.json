@@ -154,12 +154,83 @@
         "padding_top": 44,
         "padding_bottom": 36
       }
+    },
+    "featured_product_37NgQj": {
+      "type": "featured-product",
+      "blocks": {
+        "text_MMbzXt": {
+          "type": "text",
+          "settings": {
+            "text": "{{ section.settings.product.vendor }}",
+            "text_style": "uppercase"
+          }
+        },
+        "title_6n8hYp": {
+          "type": "title",
+          "settings": {
+            "heading_size": "h1"
+          }
+        },
+        "price_y6VmpH": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker_QJBLmh": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_shape": "circle"
+          }
+        },
+        "quantity_selector_3tgCkE": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons_iLkLqH": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "show_gift_card_recipient": true
+          }
+        },
+        "share_QWzeyJ": {
+          "type": "share",
+          "settings": {
+            "share_label": "Share"
+          }
+        }
+      },
+      "block_order": [
+        "text_MMbzXt",
+        "title_6n8hYp",
+        "price_y6VmpH",
+        "variant_picker_QJBLmh",
+        "quantity_selector_3tgCkE",
+        "buy_buttons_iLkLqH",
+        "share_QWzeyJ"
+      ],
+      "name": "t:sections.featured-product.presets.name",
+      "settings": {
+        "product": "diamond-drop-earrings",
+        "color_scheme": "",
+        "secondary_background": false,
+        "media_size": "medium",
+        "constrain_to_viewport": true,
+        "media_fit": "contain",
+        "media_position": "left",
+        "image_zoom": "lightbox",
+        "hide_variants": false,
+        "enable_video_looping": false,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
   "order": [
     "image_banner",
     "image_with_text_j84V3a",
     "image_with_text_brVBQH",
-    "featured_collection"
+    "featured_collection",
+    "featured_product_37NgQj"
   ]
 }
